@@ -60,6 +60,7 @@ $ffields = is_array(@$ffields['users']) ? $ffields['users'] : array();
 foreach ($users as $user) {
 	//cast
 	$user = (array) $user;
+	$passkey_only = true;
 
 	// passkeys
 	if ($User->settings->dbversion >= 40 && $User->settings->{'passkeys'}=="1") {
