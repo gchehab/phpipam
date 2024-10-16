@@ -140,7 +140,7 @@ foreach ($old_data as $table => $table_content) {
 			}
 			// permissions
 			if(!is_blank($value_obj->permissions) && $value_obj->permissions!="null") {
-				$permissions = pf_json_decode($value_obj->permissions);
+				$permissions = db_json_decode($value_obj->permissions);
 				$permissions_new = new StdClass ();
 				foreach ($permissions as $k=>$v) {
 					$permissions_new->{$highest_ids_append["userGroups"] + $k} = $v;
@@ -189,7 +189,7 @@ foreach ($old_data as $table => $table_content) {
 			}
 			// permissions
 			if(!is_blank($value_obj->permissions) && $value_obj->permissions!="null") {
-				$permissions = pf_json_decode($value_obj->permissions);
+				$permissions = db_json_decode($value_obj->permissions);
 				$permissions_new = new StdClass ();
 				foreach ($permissions as $k=>$v) {
 					$permissions_new->{$highest_ids_append["userGroups"] + $k} = $v;
@@ -253,7 +253,7 @@ foreach ($old_data as $table => $table_content) {
 	elseif ($table == "users") {
 		// go through each table and update
 		foreach ($table_content as $lk=>$value_obj) {
-			// make sure it doesnt exist already !
+			// make sure it doesn't exist already !
 			if($Database->numObjectsFilter("users", "username", $value_obj->username)==0 && $Database->numObjectsFilter("users", "email", $value_obj->email)==0) {
 				$new_data[$table][$lk]->id = $highest_ids_append[$table] + $value_obj->id;
 				// authmethod
@@ -262,7 +262,7 @@ foreach ($old_data as $table => $table_content) {
 				}
 				// groups
 				if($value_obj->role!="Administrator") {
-					$groups_tmp = pf_json_decode($value_obj->groups, true);
+					$groups_tmp = db_json_decode($value_obj->groups, true);
 					$groups_new = array();
 					foreach ($groups_tmp as $gid=>$gid2) {
 						$groups_new[$gid+$highest_ids_append["userGroups"]] = $gid+$highest_ids_append["userGroups"];
@@ -491,7 +491,7 @@ if(isset($new_custom_fields)) {
 		foreach ($field as $fname=>$fval) {
 			$null = $fval['Null']=="YES" ? "" : "NOT NULL";
 			$default = !is_blank($fval['Default']) ? "DEFAULT '$fval[Default]'" : "";
-			// update teable definition
+			// update table definition
 			$query = "ALTER TABLE `$table` ADD COLUMN `$fval[name]` $fval[type] $default $null COMMENT '$fval[Comment]';";
 			// update
 			try {
@@ -515,5 +515,3 @@ foreach ($new_data as $table=>$field) {
 		}
 	}
 }
-
-?>

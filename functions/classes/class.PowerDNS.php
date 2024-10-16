@@ -27,6 +27,20 @@ class PowerDNS extends Common_functions {
     public $db_settings;
 
     /**
+     * Array of DB errors
+     *
+     * @var array|null
+     */
+    public $db_check_error = null;
+
+    /**
+     * Active DB connection
+     *
+     * @var mixed
+     */
+    public $active_db = false;
+
+    /**
      * Default settings
      *
      * @var object
@@ -142,7 +156,7 @@ class PowerDNS extends Common_functions {
         $this->set_domain_types ();
         // set record types
         $this->set_record_types ();
-        // set uery values
+        // set query values
         $this->set_query_values ();
         // set ttl values
         $this->set_ttl_values ();
@@ -167,7 +181,7 @@ class PowerDNS extends Common_functions {
      */
     private function db_set () {
         // decode values form powerDNS
-        $this->db_settings = strlen($this->settings->powerDNS)>10 ? pf_json_decode($this->settings->powerDNS) : pf_json_decode($this->db_set_db_settings ());
+        $this->db_settings = strlen($this->settings->powerDNS)>10 ? db_json_decode($this->settings->powerDNS) : db_json_decode($this->db_set_db_settings ());
 
         // if comma delimited host
         if (strpos($this->db_settings->host, ";")!==false) {
@@ -185,13 +199,13 @@ class PowerDNS extends Common_functions {
                     $this->db_check_error[] = $this->error." :: ".$host;
                 }
                 else {
-                    if($this->thisactive_db==false) {
+                    if($this->active_db==false) {
                         $this->active_db = $key;
                     }
                 }
             }
             // connect to active
-            $this->Database_pdns = new Database_PDO ($this->db_settings->username, $this->db_settings->password, $this->db_settings->host[$active_db], $this->db_settings->port, $this->db_settings->name);
+            $this->Database_pdns = new Database_PDO ($this->db_settings->username, $this->db_settings->password, $this->db_settings->host[$this->active_db], $this->db_settings->port, $this->db_settings->name);
         }
         else {
             // set connection
@@ -200,7 +214,7 @@ class PowerDNS extends Common_functions {
     }
 
     /**
-     * Sets default values for database connection and othern parameters
+     * Sets default values for database connection and other parameters
      *
      * @access private
      * @return string
@@ -563,7 +577,7 @@ class PowerDNS extends Common_functions {
      * @return bool|array|object
      */
     public function fetch_domain_by_id ($id) {
-        # chcek cache
+        # check cache
         if (array_key_exists($id, $this->domains_cache)) { return $this->domains_cache[$id]; }
 
         # fetch
@@ -782,7 +796,7 @@ class PowerDNS extends Common_functions {
      *
      * @access public
      * @param mixed $hostname
-     * @return void
+     * @return array|false
      */
     public function seach_aliases ($hostname) {
         // fetch
@@ -1277,7 +1291,7 @@ class PowerDNS extends Common_functions {
      * @return void
      */
     private function validate_record_type ($type) {
-        // if set check, otherwise ognore
+        // if set check, otherwise ignore
         if(isset($type)) {
             // check record type
             if(!in_array($type, (array) $this->record_types))    { $this->Result->show("danger", _("Invalid record type"), true); }
@@ -1579,7 +1593,7 @@ class PowerDNS extends Common_functions {
      * @return bool
      */
     public function record_id_exists ($ptr_id = 0) {
-        # 0 or dalse
+        # 0 or false
         if (@$ptr_id==0 || $ptr_id===false)    { return false; }
 
         # fetch
@@ -1601,7 +1615,7 @@ class PowerDNS extends Common_functions {
      * @return bool
      */
     public function remove_all_ptr_records ($domain_id, $indexes = array()) {
-        // if false return ok and dont execute
+        // if false return ok and don't execute
         if (sizeof($indexes)==0 || !is_array($indexes)) {
             return true;
         }

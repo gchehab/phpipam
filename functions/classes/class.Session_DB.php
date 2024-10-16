@@ -23,7 +23,7 @@ class Session_DB {
 	public $Result;
 
 	/**
-	 * Construnctor
+	 * Constructor
 	 *
 	 * @method __construct
 	 * @param  Database_PDO $database
@@ -95,7 +95,7 @@ class Session_DB {
 			if (!is_object($session) || empty($session->data))
 				return "";
 
-			return $session->data;
+			return html_entity_decode($session->data, ENT_QUOTES);
 		}
 		catch (Exception $e) {
 			$this->Result->show("danger", $e->getMessage(), false);
@@ -112,7 +112,7 @@ class Session_DB {
 	 * @return bool
 	 */
 	public function _write ($id, $data) {
-		// we need some data otherwise dont save session
+		// we need some data, otherwise don't save session
 		if(is_blank($data)) {
 			//return true;
 		}

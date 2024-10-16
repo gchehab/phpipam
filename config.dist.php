@@ -69,7 +69,7 @@ $config['ping_check_method']           = false;      // false/ping/pear/fping, r
 $config['discovery_check_send_mail']   = true;       // true/false, send or not mail on discovery check
 $config['discovery_check_method']      = false;      // false/ping/pear/fping, reset scan method
 # remove_offline_addresses.php script parameters
-$config['removed_addresses_send_mail'] = true;       // true/false, send or not mail on pomoving inactive addresses
+$config['removed_addresses_send_mail'] = true;       // true/false, send mail or not on removing inactive addresses
 $config['removed_addresses_timelimit'] = 86400 * 7;  // int, after how many seconds of inactivity address will be deleted (7 days)
 # resolveIPaddresses.php script parameters
 $config['resolve_emptyonly']           = true;       // if true it will only update the ones without DNS entry!
@@ -102,6 +102,15 @@ $debugging = false;
  * @var bool
  */
 $api_allow_unsafe = false;
+
+/**
+ * PHP8.1 - Integers and floats in result sets will now be returned using native PHP types instead of strings when using emulated prepared statements.
+ * Add option to restore prior behaviour for API consumers.
+ *
+ * Can be overwritten via "api-stringify-results: 0|1" header in API requests.
+ */
+
+$api_stringify_results = false;
 
 /**
  *  manual set session name for auth
@@ -162,7 +171,12 @@ $proxy_user     = 'USERNAME';                             // Proxy Username
 $proxy_pass     = 'PASSWORD';                             // Proxy Password
 $proxy_use_auth = false;                                  // Enable/Disable Proxy authentication
 
-$offline_mode   = false;                                  // Offline mode, disable server-side Internet requests (proxy/OpenStreetMap)
+$offline_mode   = false;                                  // Offline mode, disable all server-side Internet requests (proxy/OpenStreetMap)
+
+/**
+ * OpenStreetMap
+ ****************************/
+$disable_geoip_lookups = false;                           // Disable address geoip lookups
 
 /**
  * Failed access

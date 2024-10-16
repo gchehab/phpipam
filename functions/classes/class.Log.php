@@ -429,7 +429,7 @@ class Logging extends Common_functions {
 	 *		*.*                                             /var/log/phpipam-changelog.log
 	 *		!*
 	 *
-	 *		# > rysylog example
+	 *		# > rsyslog example
 	 *		auth.alert;auth.warning;auth.debug              /var/log/auth.log
 	 *		if $programname == 'phpipam' then /var/log/phpipam.log
 	 *		if $programname == 'phpipam-changelog' then /var/log/phpipam-changelog.log
@@ -606,7 +606,7 @@ class Logging extends Common_functions {
 	 * @param mixed $informational (default: Off)
 	 * @param mixed $notice (default: Off)
 	 * @param mixed $warning (default: Off)
-	 * @return void
+	 * @return array|false
 	 */
 	public function fetch_logs ($logCount, $direction = NULL, $lastId = NULL, $highestId = NULL, $informational = "off", $notice = "off", $warning = "off") {
 
@@ -810,7 +810,7 @@ class Logging extends Common_functions {
 		# null and from cli, set admin user
 		if ($this->user===null && php_sapi_name()=="cli") { $this->user_id = 1; }
 
-        # if user is not specify dont write changelog
+        # if user is not specified, don't write changelog
         if (!isset($this->user) || $this->user == false || $this->user == null) {
             return true;
         }
@@ -822,7 +822,7 @@ class Logging extends Common_functions {
 		# set object type
 		$object_type = $this->object_type=="folder" ? "subnet" : $this->object_type;
 
-		# if required values are missing dont save changelog
+		# if required values are missing, don't save changelog
 		if(is_null($obj_id) || $obj_id=="NULL")	{ return false; }
 
 	    # set values
@@ -946,7 +946,7 @@ class Logging extends Common_functions {
 	}
 
 	/**
-	 * Calculate possible chages on edit
+	 * Calculate possible changes on edit
 	 *
 	 * @access private
 	 * @return array
@@ -973,7 +973,7 @@ class Logging extends Common_functions {
 		// check each value
 		foreach($this->object_new as $k=>$v) {
 			//change
-			if($this->object_old[$k]!=$v && ($this->object_old[$k] != str_replace("\'", "'", $v ?: '')))	{
+			if($this->object_old[$k]!=$v && ($this->object_old[$k] != str_replace("\'", "'", (string) $v)))	{
 				//empty
 				if(is_blank(@$this->object_old[$k]))	{ $this->object_old[$k] = "NULL"; }
 				if(is_blank(@$v))						{ $v = "NULL"; }
@@ -1406,8 +1406,8 @@ class Logging extends Common_functions {
 	 */
 	private function changelog_format_permission_diff ($k, $v) {
 		// get old and compare
-		$this->object_new['permissions'] = pf_json_decode(str_replace("\\", "", $this->object_new['permissions']), true);		//Remove /
-		$this->object_old['permissions'] = pf_json_decode(str_replace("\\", "", $this->object_old['permissions']), true);		//Remove /
+		$this->object_new['permissions'] = db_json_decode(str_replace("\\", "", $this->object_new['permissions']), true);		//Remove /
+		$this->object_old['permissions'] = db_json_decode(str_replace("\\", "", $this->object_old['permissions']), true);		//Remove /
 
 		# Get all groups:
 		$groups = (array) $this->Tools->fetch_all_objects("userGroups", "g_id");
@@ -1470,7 +1470,7 @@ class Logging extends Common_functions {
 	 */
 	private function changelog_format_permission_change () {
 		# get old and compare
-		$this->object_new['permissions_change'] = pf_json_decode(str_replace("\\", "", $this->object_new['permissions_change']), true);		//Remove /
+		$this->object_new['permissions_change'] = db_json_decode(str_replace("\\", "", $this->object_new['permissions_change']), true);		//Remove /
 
 		# Get all groups:
 		$groups = (array) $this->Tools->fetch_all_objects("userGroups", "g_id");
@@ -1486,7 +1486,7 @@ class Logging extends Common_functions {
 
 		# reformat
 		if($this->object_new['permissions_change']!="null") {
-			$new_permissions = pf_json_decode($this->object_new['permissions_change']);
+			$new_permissions = db_json_decode($this->object_new['permissions_change']);
 			foreach($new_permissions as $group_id=>$p) {
 				$log['Permissions'] .= "<br>". $groups[$group_id]['g_name'] ." : ".$this->Subnets->parse_permissions($p);
 			}
@@ -1502,7 +1502,7 @@ class Logging extends Common_functions {
 	 * @param bool $filter
 	 * @param mixed $expr
 	 * @param int $limit (default: 100)
-	 * @return void
+	 * @return array|false
 	 */
 	public function fetch_all_changelogs ($filter, $expr, $limit = 100) {
     	# limit check

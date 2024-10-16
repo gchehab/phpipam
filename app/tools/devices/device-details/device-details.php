@@ -10,10 +10,10 @@ $User->check_user_session();
 $User->check_module_permissions ("devices", User::ACCESS_R, true, false);
 
 # check
-is_numeric($_GET['subnetId']) ? : $Result->show("danger", _("Invalid ID"), true);
+is_numeric($GET->subnetId) ? : $Result->show("danger", _("Invalid ID"), true);
 
 # fetch device
-$device = (array) $Tools->fetch_object ("devices", "id", $_GET['subnetId']);
+$device = (array) $Tools->fetch_object ("devices", "id", $GET->subnetId);
 
 # get custom fields
 $custom_fields = $Tools->fetch_custom_fields('devices');
@@ -23,7 +23,7 @@ print "<h4>"._('Device details')."</h4>";
 print "<hr>";
 
 # print
-if($_GET['subnetId']!=0 && sizeof($device)>0) {
+if($GET->subnetId!=0 && sizeof($device)>0) {
 
     print "<table class='table table-noborder'>";
     print "<tr>";
@@ -281,10 +281,10 @@ if($_GET['subnetId']!=0 && sizeof($device)>0) {
         $rack = $Tools->fetch_object ("racks", "id", $device['rack']);
         if ($rack!==false) {
             // front
-            print " <img src='".$Tools->create_rack_link ($device['rack'], $device['id'])."' class='pul1l-right' style='width:180px;'>";
+            print " <img src='".$Tools->create_rack_link ($device['rack'], $device['id'])."' class='pull-right' style='width:180px;'>";
             // back
             if($rack->hasBack!="0") {
-            print " <img src='".$Tools->create_rack_link ($device['rack'], $device['id'], true)."' class='pull-r1ight' style='width:180px;margin-left:5px;'>";
+            print " <img src='".$Tools->create_rack_link ($device['rack'], $device['id'], true)."' class='pull-right' style='width:180px;margin-left:5px;'>";
             }
         }
         print "</td>";

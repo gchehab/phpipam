@@ -332,7 +332,7 @@ class Addresses extends Common_functions {
 
 		$bulk_search = $this->bulk_fetch_similar_addresses($address, $linked_field, $value);
 
-		// Check if similar addresses exist with the specifed $value
+		// Check if similar addresses exist with the specified $value
 		if (!isset($bulk_search[$address->{$linked_field}]))
 			return false;
 
@@ -588,8 +588,8 @@ class Addresses extends Common_functions {
 			# loop
 			foreach ($all_nats as $nat) {
 			    # remove item from nat
-			    $s = pf_json_decode($nat->src, true);
-			    $d = pf_json_decode($nat->dst, true);
+			    $s = db_json_decode($nat->src, true);
+			    $d = db_json_decode($nat->dst, true);
 
 			    if(is_array($s['ipaddresses']))
 			    $s['ipaddresses'] = array_diff($s['ipaddresses'], array($obj_id));
@@ -858,7 +858,7 @@ class Addresses extends Common_functions {
 	 */
 
 	/**
-	 * Modifes powerDNS PTR record
+	 * Modifies powerDNS PTR record
 	 *
 	 * @access public
 	 * @param mixed $action
@@ -978,7 +978,7 @@ class Addresses extends Common_functions {
 	 */
 	public function ptr_add ($address, $print_error = true, $id = null) {
 		// decode values
-		$values = pf_json_decode($this->settings->powerDNS);
+		$values = db_json_decode($this->settings->powerDNS);
 
     	// set default hostname for PTR if set
     	if (is_blank($address->hostname)) {
@@ -1145,7 +1145,7 @@ class Addresses extends Common_functions {
 	}
 
 	/**
-	 * Returns array of all ptr indexes in surrent subnet
+	 * Returns array of all ptr indexes in current subnet
 	 *
 	 * @access public
 	 * @param mixed $subnetId
@@ -1573,7 +1573,7 @@ class Addresses extends Common_functions {
 
 		# loop through IP addresses
 		for($c=0; $c<$size; $c++) {
-			# ignore already comressed range
+			# ignore already compressed range
 			if(!property_exists($addresses[$c], 'class') || $addresses[$c]->class!="compressed-range") {
 				# gap between this and previous
 				if(gmp_strval( @gmp_sub($addresses[$c]->ip_addr, $addresses[$c-1]->ip_addr)) != 1) {
@@ -1715,7 +1715,7 @@ class Addresses extends Common_functions {
 	public function check_permission ($user, $subnetId) {
 
 		# get all user groups
-		$groups = pf_json_decode($user->groups);
+		$groups = db_json_decode($user->groups);
 
 		# if user is admin then return 3, otherwise check
 		if($user->role == "Administrator")	{ return 3; }
@@ -1723,12 +1723,12 @@ class Addresses extends Common_functions {
     	$this->initialize_subnets_object();
         $subnet = $this->Subnets->fetch_subnet("id", $subnetId);
 		# set subnet permissions
-		$subnetP = pf_json_decode($subnet->permissions);
+		$subnetP = db_json_decode($subnet->permissions);
 
 		# set section permissions
 		$Sections = new Sections ($this->Database);
 		$section = $Sections->fetch_section ("id", $subnet->sectionId);
-		$sectionP = pf_json_decode($section->permissions);
+		$sectionP = db_json_decode($section->permissions);
 
 		# default permission
 		$out = 0;
@@ -1863,10 +1863,10 @@ class Addresses extends Common_functions {
         if ($cnt>0) {
             $html[] = "</table>";
             if($type=="subnet") {
-                print  " <a href='".create_link("subnets",$subnet->sectionId, $subnet->id, "nat")."' class='btn btn-xs btn-default show_popover fa fa-exchange' style='font-size:11px;margin-top:-3px;padding:1px 3px;' data-toggle='popover' title='"._('Object is Natted')."' data-trigger='hover' data-html='true' data-content='".implode("\n", $html)."'></a>";
+                print  " <a href='".create_link("subnets",$subnet->sectionId, $subnet->id, "nat")."' class='btn btn-xs btn-default show_popover fa fa-exchange' style='font-size:11px;margin-top:-3px;padding:1px 3px;' data-toggle='popover' title='"._('Object is NATted')."' data-trigger='hover' data-html='true' data-content='".implode("\n", $html)."'></a>";
             }
             else {
-                print  " <a href='".create_link("subnets",$subnet->sectionId, $subnet->id, "address-details", $address->id, "nat")."' class='btn btn-xs btn-default show_popover fa fa-exchange' style='font-size:11px;margin-top:-3px;padding:1px 3px;' data-toggle='popover' title='"._('Object is Natted')."' data-trigger='hover' data-html='true' data-content='".implode("\n", $html)."'></a>";
+                print  " <a href='".create_link("subnets",$subnet->sectionId, $subnet->id, "address-details", $address->id, "nat")."' class='btn btn-xs btn-default show_popover fa fa-exchange' style='font-size:11px;margin-top:-3px;padding:1px 3px;' data-toggle='popover' title='"._('Object is NATted')."' data-trigger='hover' data-html='true' data-content='".implode("\n", $html)."'></a>";
             }
         }
 	}
@@ -1909,8 +1909,8 @@ class Addresses extends Common_functions {
 
         // append ports
         if(($n->type=="static" || $n->type=="destination") && (!is_blank($n->src_port) && !is_blank($n->dst_port))) {
-            $sources      = implode("<br>", $sources)." /".$n->src_port;
-            $destinations = implode("<br>", $destinations)." /".$n->dst_port;
+            $sources      = implode("<br>", $sources)." :".$n->src_port;
+            $destinations = implode("<br>", $destinations)." :".$n->dst_port;
         }
         else {
             $sources      = implode("<br>", $sources);
@@ -1945,7 +1945,7 @@ class Addresses extends Common_functions {
      */
     public function translate_nat_objects_for_popup ($json_objects, $nat_id = false, $admin = false, $object_type = false, $object_id=false) {
         // to array "subnets"=>array(1,2,3)
-        $objects = pf_json_decode($json_objects, true);
+        $objects = db_json_decode($json_objects, true);
         // init out array
         $out = array();
         // check
